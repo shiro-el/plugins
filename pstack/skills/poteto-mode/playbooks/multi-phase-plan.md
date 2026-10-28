@@ -5,7 +5,7 @@
 1. When the change is one or two files with an obvious approach, skip the plan. Say so and stop.
 2. Settle open questions by prototype before you write. Run `playbooks/prototype.md` for each. Keep the branch, the SHA, and the screenshots for Appendix A. Ask the operator only about a product or preference call that no run can settle. Give options (the **never-block-on-the-human** principle skill).
 3. Explore in subagents with `subagent_type: "poteto-agent"` and an explicit model per the Subagents section (the **guard-the-context-window** principle skill). Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section. Each returns file pointers, conventions, test commands, and entry points. No inlined dumps.
-4. Copy the skeleton below into the plan file and fill every placeholder. Unless the operator names a path, write the file under the agent store's `docs/`. Keep every heading and every sub-block in the order shown. One section per PR. One PR is one change with its own evidence (the **sequence-verifiable-units** principle skill). Name the execution playbook in **How to read this**. Pick `playbooks/autopilot-full.md` when the run may merge. Pick `playbooks/autopilot-stack.md` when the operator lands the PRs. A standing program takes `playbooks/orchestrate.md`.
+4. Copy the skeleton below into the plan file and fill every placeholder. Unless the operator names a path, write the file under the agent store's `docs/`. Keep every heading and every sub-block in the order shown. One section per PR. One PR is one change with its own evidence (the **sequence-verifiable-units** principle skill). Split for parallel owners. When several PRs share a contract, such as an API schema, a function signature, or shared types, the first PR lands only that contract with no behavior change, and the PRs that implement or call it branch from trunk after it merges and run at once. Cut the rest by the behavior a user sees, not by layer, because layers chain each PR to the one below. Give each dependency its class per `playbooks/autopilot-stack.md` step 3. `code` means the child needs the parent's code, `file` means they only share files, generated output, or an ordered sequence such as migrations, and `order` means the plan merely reads that way. Only `code` serializes. Name the execution playbook in **How to read this**. Pick `playbooks/autopilot-full.md` when the run may merge. Pick `playbooks/autopilot-stack.md` when the operator lands the PRs. A standing program takes `playbooks/orchestrate.md`.
 5. Write under `/technical-writing` in full, then `/unslop`. The body is one Diátaxis mode, how-to. Appendices hold explanation and reference. Each heading states the task or the finding. No long dashes. No mid-sentence colons.
 6. Run `node pstack/skills/poteto-mode/scripts/check-plan.mjs <plan.md>` and fix every line it prints (the **encode-lessons-in-structure** principle skill).
 7. Hand back. Post the plan path and the script's output, then stop. Execution starts on the operator's explicit go, under the execution playbook the plan names.
@@ -45,9 +45,9 @@ Tests alone are not sufficient verification. A PR is verified only when its unit
 ### Spawn owners
 
 - [ ] Spawn one owner per PR with the full lifecycle the execution playbook names.
-- [ ] Follow this dependency graph. Start dependent work only after its parent merges, or base it on the parent branch when the execution playbook stacks.
+- [ ] Follow this dependency graph. Only a `code` edge waits, for its parent's merge or, when the execution playbook stacks, on the parent branch. `file` and `order` edges start in parallel from `main`.
   - [ ] <PR id> and <PR id> are independent and first. Both branch from `main`.
-  - [ ] <PR id> after <PR id>.
+  - [ ] <PR id> after <PR id> (<code, file, or order>).
 - [ ] Hold the file boundaries. <PR id or class> touches only `<glob>`.
 - [ ] Hold the review gate. <PR ids> change an interaction. They wait for the operator's review in chat with screenshots and a video before merge.
 
@@ -77,7 +77,7 @@ Each live lane runs on its own cloud VM at the PR head. Drive through `control-u
 
 ## <Task as a verb phrase> (<PR id>)
 
-**Depends on.** <PR id, or None.>
+**Depends on.** <PR id> (<code, file, or order>) for each parent, or None.
 
 **Files.**
 

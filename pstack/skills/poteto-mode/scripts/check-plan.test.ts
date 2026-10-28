@@ -50,10 +50,12 @@ Close.
 Recorded.
 `;
 
-const runPlan = (example: string, expectedExit: number) => {
+const runPlan = (example: string, expectedExit: number) => runText(validPlan + example, expectedExit);
+
+const runText = (plan: string, expectedExit: number) => {
 	const directory = mkdtempSync(join(tmpdir(), "check-plan-test-"));
 	const file = join(directory, "plan.md");
-	writeFileSync(file, validPlan + example);
+	writeFileSync(file, plan);
 	try {
 		const result = spawnSync("node", [checker, file], { encoding: "utf8" });
 		expect(result.status).toBe(expectedExit);
@@ -107,4 +109,18 @@ test("checks prose following a multi-backtick span and unmatched delimiters", ()
 	expect(outside.stderr).toContain("mid-sentence colon");
 	const unmatched = runPlan("Use ``unclosed: bad` here.\n", 1);
 	expect(unmatched.stderr).toContain("mid-sentence colon");
+});
+
+const withDepends = (value: string) => validPlan.replace("**Depends on.** None.", `**Depends on.** ${value}`);
+
+test("accepts dependencies that each name their class", () => {
+	runText(withDepends("PR 0 (code)."), 0);
+	runText(withDepends("PR 0 (code), PR 2 (file) and PR 3 (order)."), 0);
+});
+
+test("rejects a dependency without its class", () => {
+	const bare = runText(withDepends("PR 0."), 1);
+	expect(bare.stderr).toContain('dependency "PR 0" lacks its class');
+	const unknown = runText(withDepends("PR 0 (code), PR 2 (soft)."), 1);
+	expect(unknown.stderr).toContain('dependency "PR 2 (soft)" lacks its class');
 });

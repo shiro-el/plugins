@@ -27,6 +27,7 @@ const HOW_TO_READ_MARKERS = [
 ];
 const PERF_ITEMS = ["Metric.", "Probe.", "Baseline.", "Rule."];
 const BOX = /^\s*- \[[ x]\] (.*)$/;
+const DEPENDENCY = /^\S.*? \((code|file|order)\)$/;
 
 const file = process.argv[2];
 if (!file) {
@@ -144,6 +145,11 @@ for (const pr of prSections) {
 
 	const depends = block("Depends on.");
 	if (depends && depends.rest === "") fail(depends.n, `${pr.title}: Depends on names nothing`);
+	if (depends && depends.rest !== "" && !depends.rest.startsWith("None.")) {
+		for (const parent of depends.rest.replace(/\.$/, "").split(/, | and /)) {
+			if (!DEPENDENCY.test(parent)) fail(depends.n, `${pr.title}: dependency "${parent}" lacks its class, (code), (file), or (order)`);
+		}
+	}
 	for (const name of ["Files.", "Build.", "You see.", "Verify, unit.", "Merge."]) {
 		const b = block(name);
 		if (b && boxes(b.lines).length === 0) fail(b.n, `${pr.title}: ${name} has no box`);
