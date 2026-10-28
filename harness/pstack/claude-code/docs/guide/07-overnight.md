@@ -79,7 +79,7 @@ The contract above drives one task to one finish condition. Some nights hold mor
 /poteto-mode full autopilot on this queue. each item is independent. i want them merged by morning.
 ```
 
-[Autopilot-stack](../../skills/poteto-mode/playbooks/autopilot-stack.md) is Autopilot-full without the merge. You wake up to verified PRs, each with its verdict, and you review and land them yourself. A PR stacks only on a PR it builds on. Pick it over Autopilot-full when you want your own eyes on the work before anything merges:
+[Autopilot-stack](../../skills/poteto-mode/playbooks/autopilot-stack.md) is Autopilot-full without the merge. You wake up to verified PRs, each with its verdict, and you review and land them yourself. A PR stacks only on a PR whose code it needs. A link that only shares files or reflects the plan's order runs in parallel off trunk, a child starts early only on a parent interface that won't change, and the run keeps its agents within what your machine can hold. Pick it over Autopilot-full when you want your own eyes on the work before anything merges:
 
 ```text
 /poteto-mode autopilot these five changes, but don't merge. i'll land them in the morning.
